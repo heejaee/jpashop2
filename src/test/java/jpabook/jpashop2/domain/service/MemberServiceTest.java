@@ -1,9 +1,8 @@
 package jpabook.jpashop2.domain.service;
 
-import jakarta.persistence.EntityManager;
 import jpabook.jpashop2.domain.Member;
-import jpabook.jpashop2.domain.repository.MemberRepository;
-import org.assertj.core.api.Assertions;
+import jpabook.jpashop2.repository.MemberRepository;
+import jpabook.jpashop2.service.MemberService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

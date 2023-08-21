@@ -2,6 +2,7 @@ package jpabook.jpashop2.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
+import lombok.Setter;
 
 @Embeddable
 @Getter
@@ -19,4 +20,5 @@ public class Address {
         this.street = street;
         this.zipcode = zipcode;
     }
+
 }
