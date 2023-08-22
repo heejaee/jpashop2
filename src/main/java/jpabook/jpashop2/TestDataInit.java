@@ -31,11 +31,14 @@ public class TestDataInit {
         Book book= new Book();
         book.setId(1L);
         book.setName("자바의 정석");
+        book.setPrice(10000);
+        book.setStockQuantity(10);
 
         Book book2= new Book();
         book2.setId(2L);
         book2.setName("수능 특강");
-
+        book2.setPrice(15000);
+        book2.setStockQuantity(20);
 
         memberService.join(member);
         itemService.saveItem(book);
