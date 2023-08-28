@@ -29,10 +29,10 @@ public class OrderSimpleApiController {
     @GetMapping("/api/v1/simple-orders")
     public List<Order> orderV1(){
         List<Order> all = orderRepository.findAllByString(new OrderSearch());
-        for(Order order : all){
-            order.getMember().getName(); //Lazy 강제 초기화
-            order.getDelivery().getAddress(); // Lazy 강제 초기화
-        }
+//        for(Order order : all){
+//            order.getMember().getName(); //Lazy 강제 초기화
+//            order.getDelivery().getAddress(); // Lazy 강제 초기화
+//        }
         
         return all;
     }
@@ -44,6 +44,15 @@ public class OrderSimpleApiController {
         // N + 1 => 1 + 회원 N + 배송 N
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
         List<SimpleOrderDto> result = orders.stream().map(SimpleOrderDto::new).collect(Collectors.toList());
+        return result;
+    }
+
+
+    @GetMapping("/api/v3/simple-orders")
+    public List<SimpleOrderDto> orderV3(){
+        List<Order> orders = orderRepository.findAllWithMemberDelivery();
+        List<SimpleOrderDto> result = orders.stream().map(SimpleOrderDto::new).collect(Collectors.toList());
+
         return result;
     }
 
