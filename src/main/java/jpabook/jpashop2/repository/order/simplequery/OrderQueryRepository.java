@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 public class OrderQueryRepository {
-               //java/jpabook/jpashop2/repository/order/simplequery/OrderQueryDto.java
+
     private final EntityManager em;
 
     public List<OrderQueryDto> findOrderQueryDtos(){

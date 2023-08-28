@@ -1,10 +1,5 @@
 package jpabook.jpashop2.api;
 
-/* xtoOne(ManyToOne,OneToOne)
-   Order
-   Order -> Member
-   Order -> Delivery
-* */
 
 import jpabook.jpashop2.domain.Address;
 import jpabook.jpashop2.domain.Order;
@@ -22,6 +17,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+/**
+ *
+ * xToOne(ManyToOne, OneToOne) 관계 최적화
+ * Order
+ * Order -> Member
+ * Order -> Delivery
+ *
+ */
 @RestController
 @RequiredArgsConstructor
 public class OrderSimpleApiController {
@@ -32,10 +36,12 @@ public class OrderSimpleApiController {
     @GetMapping("/api/v1/simple-orders")
     public List<Order> orderV1(){
         List<Order> all = orderRepository.findAllByString(new OrderSearch());
-//        for(Order order : all){
-//            order.getMember().getName(); //Lazy 강제 초기화
-//            order.getDelivery().getAddress(); // Lazy 강제 초기화
-//        }
+        //order에서 내가 뽑고 싶은것만 뽑아서 조회한다.
+        for(Order order : all){
+            order.getMember().getName(); //Lazy 강제 초기화
+            // order.getMember()까지는 프록시 객체, 여기서 .getName()하면 azy 강제 초기화
+            order.getDelivery().getAddress(); // Lazy 강제 초기화
+        }
         
         return all;
     }
