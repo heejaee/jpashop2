@@ -7,8 +7,10 @@ import jpabook.jpashop2.domain.OrderStatus;
 import jpabook.jpashop2.repository.OrderRepository;
 import jpabook.jpashop2.repository.OrderSearch;
 import jpabook.jpashop2.repository.order.query.OrderFlatDto;
+import jpabook.jpashop2.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop2.repository.order.query.OrderQueryDto;
 import jpabook.jpashop2.repository.order.query.OrderQueryRepository;
+import jpabook.jpashop2.service.OSIV.OrderQueryService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ public class OrderApiController {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final OrderQueryService orderQueryService;
 
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1(){
@@ -37,20 +44,25 @@ public class OrderApiController {
         }
         return all;
     }
+    @GetMapping("/api/v1.1/orders")
+    public List<Order> ordersV1_1(){
+        return orderQueryService.ordersV1();
+    }
+
 
     @GetMapping("/api/v2/orders")
     public List<OrderDto> ordersV2(){
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
         List<OrderDto> collect = orders.stream()
                                         .map(o -> new OrderDto(o))
-                                        .collect(Collectors.toList());
+                                        .collect(toList());
         return collect;
     }
 
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3(){
         List<Order> orders = orderRepository.findAllWithItem();
-        List<OrderDto> collect = orders.stream().map(OrderDto::new).collect(Collectors.toList());
+        List<OrderDto> collect = orders.stream().map(OrderDto::new).collect(toList());
         return collect;
     }
 
@@ -61,7 +73,7 @@ public class OrderApiController {
         List<Order> orders = orderRepository.findAllWithMemberDelivery(offset,limit);
 
         List<OrderDto> result = orders.stream()
-                                .map(OrderDto::new).collect(Collectors.toList());
+                                .map(OrderDto::new).collect(toList());
         return result;
     }
 
@@ -76,8 +88,24 @@ public class OrderApiController {
     }
 
     @GetMapping("/api/v6/orders")
-    public List<OrderFlatDto> ordersV6(){
-        return orderQueryRepository.findAllByDto_flat();
+    public List<OrderQueryDto> ordersV6() {
+        List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+
+        Map<OrderQueryDto, List<OrderItemQueryDto>> collect = flats.stream()
+                // stream()을 이용하여 OrderFlatDto의 일부를 OrderQueryDto로 변환
+                .collect(Collectors.groupingBy(o -> new OrderQueryDto(o.getOrderId(),
+                                o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                        // stream()을 이용하여 OrderFlatDto의 일부를 OrderItemQueryDto로 변환
+                        mapping(o -> new OrderItemQueryDto(o.getOrderId(),
+                                o.getItemName(), o.getOrderPrice(), o.getCount()), toList())
+                ));
+
+        return collect.entrySet().stream()// 키는 OrderQueryDto 값은 List<OrderItemQueryDto> 인 Map 탄생
+                // 최종적으로 OrderQueryDto와 OrderItemQueryDto를 이용하여 OrderQueryDto 생성
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(),
+                        e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(),
+                        e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
     }
 
 
@@ -97,7 +125,7 @@ public class OrderApiController {
             orderStatus = order.getStatus();
             address = order.getDelivery().getAddress();
             orderItems = order.getOrderItems().stream()
-                    .map(o->new OrderItemDto(o)).collect(Collectors.toList());
+                    .map(o->new OrderItemDto(o)).collect(toList());
         }
     }
 
