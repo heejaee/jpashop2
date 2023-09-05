@@ -39,7 +39,7 @@ public class OrderSimpleApiController {
         //order에서 내가 뽑고 싶은것만 뽑아서 조회한다.
         for(Order order : all){
             order.getMember().getName(); //Lazy 강제 초기화
-            // order.getMember()까지는 프록시 객체, 여기서 .getName()하면 azy 강제 초기화
+            // order.getMember()까지는 프록시 객체, 여기서 .getName()하면 Lazy 강제 초기화
             order.getDelivery().getAddress(); // Lazy 강제 초기화
         }
         
